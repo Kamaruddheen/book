@@ -36,17 +36,9 @@ const Registration = () => {
     };
 
     try {
-      // Check username exists or not
-      await axios.get(`http://localhost:5555/user/${username}`).then((res) => {
-        if (res.data.exists) {
-          setError("Username already exists");
-          return;
-        }
-      });
-
       // Create a new user account
       const response = await axios.post(
-        "http://localhost:5555/register/",
+        "http://localhost:2000/user/register",
         data
       );
 
@@ -182,7 +174,7 @@ const Registration = () => {
           <div className="m-auto mt-6 w-fit md:mt-4">
             <span className="flex max-sm:flex-col justify-center items-center text-center m-auto">
               Already have an account? &nbsp;
-              <Link className="font-semibold text-indigo-600" to="/register">
+              <Link className="font-semibold text-indigo-600" to="/login">
                 Login
               </Link>
             </span>

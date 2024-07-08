@@ -31,19 +31,21 @@ const Login = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:5555/login/", data);
+      const response = await axios.post(
+        "http://localhost:2000/user/login/",
+        data
+      );
 
       if (response.status === 200) {
         console.log("Logged in successfully");
         console.log(response.data);
         // Redirect to the home page
         navigate("/");
-      } else {
-        setError("Invalid username or password.");
       }
     } catch (err) {
       console.error("Error during login:", err);
-      setError("An error occurred during login. Please try again.");
+      // setError("An error occurred during login. Please try again.");
+      setError(err.response.data);
     } finally {
       // Stop loading
       setLoading(false);
@@ -59,9 +61,24 @@ const Login = () => {
 
     try {
       // TODO: Google backend call goes here
+      // window.location.href = "http://localhost:2000/user";
 
-      // Redirect to the home page
-      navigate("/");
+      await axios
+        .get("https://localhost:2000/user", {
+          withCredentials: true,
+        })
+        .then((response) => {
+          console.log(response);
+        });
+
+      // .then((response) => {
+      //   if (response.status === 200) {
+      //     console.log("Logged in successfully");
+      //     console.log(response.data);
+      //     // Redirect to the home page
+      //     // navigate("/");
+      //   }
+      // });
     } catch (err) {
       console.error("Error during Google login:", err);
       setError("An error occurred during login with Google. Please try again.");
