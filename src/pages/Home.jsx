@@ -1,12 +1,74 @@
-const Home = () => {
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import BookComponent from '../Components/BookComponent'; // Ensure the path is correct
+import Navbar from '../Components/Navbar';
+import { Plus } from 'lucide-react'; // Assuming the Lucide React icon library is used
+
+function Home() {
+  const [books, setBooks] = useState([]);
+  const [error, setError] = useState(null);
+  const baseBackendURL = "http://localhost:2000";
+  const navigate = useNavigate();
+
+  const fetchBooks = async () => {
+    try {
+      const response = await axios.get(`${baseBackendURL}/books`);
+      setBooks(response.data);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError(error);
+    }
+  };
+
+  useEffect(() => {
+    fetchBooks();
+  }, []);
+
+  const handleEdit = (title) => {
+    navigate(`/edit/${title}`);
+  };
+
+  const handleDelete = async (title) => {
+    try {
+      await axios.delete(`${baseBackendURL}/books/${title}`);
+      fetchBooks(); // Refresh the book list
+    } catch (error) {
+      console.error("Error deleting book:", error);
+    }
+  };
+
+  const handleAddBook = () => {
+    navigate('/add'); // Navigate to the edit page for adding a new book
+  };
+
   return (
-    <>
-      <h1 className="text-3xl font-bold">Hello world!</h1>
-      <button className="bg-sky-700 px-4 py-2 text-white hover:bg-sky-800 sm:px-8 sm:py-3">
-        ...
+    <div className="relative min-h-screen">
+      <Navbar />
+      {error && <p className="text-red-500">Error fetching data: {error.message}</p>}
+  
+      <div className="container mx-auto p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {books.map((book, index) => (
+          <BookComponent
+            key={book._id}
+            title={book.title}
+            author={book.author}
+            date={book.date}
+            onEdit={() => handleEdit(book.title)}
+            onDelete={() => handleDelete(book.title)}
+          />
+        ))}
+      </div>
+
+      {/* Plus icon button */}
+      <button
+        className="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none"
+        onClick={handleAddBook}
+      >
+        <Plus size={24} color='white' />
       </button>
-    </>
+    </div>
   );
-};
+}
 
 export default Home;
