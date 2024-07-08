@@ -1,6 +1,7 @@
 import axios from "axios";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -52,8 +53,8 @@ const Login = () => {
   return (
     <section className="min-h-screen flex items-center">
       <div className="w-full">
-        <div className="flex justify-center bg-white p-10 rounded-lg shadow md:w-2/3 mx-auto lg:w-1/2">
-          <form onSubmit={handleSubmit}>
+        <div className="flex flex-col justify-center bg-white p-10 rounded-lg shadow md:w-2/3 mx-auto lg:w-1/2">
+          <form className="flex flex-col items-center" onSubmit={handleSubmit}>
             <h2 className="text-center text-blue-400 font-bold text-2xl uppercase my-5">
               Login Form
             </h2>
@@ -102,6 +103,12 @@ const Login = () => {
               </button>
             </div>
           </form>
+          <div className="flex justify-center text-sm mt-4">
+            <button className="flex items-center justify-center w-2/3 bg-black text-white font-bold p-2 rounded-lg">
+              <span>Or Continue with &nbsp;</span>
+              <FcGoogle size={24} />
+            </button>
+          </div>
         </div>
       </div>
     </section>
