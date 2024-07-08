@@ -50,11 +50,32 @@ const Login = () => {
     }
   };
 
+  const handleGoogleAuth = async () => {
+    // Clears previous error message
+    setError("");
+
+    // Start loading
+    setLoading(true);
+
+    try {
+      // TODO: Google backend call goes here
+
+      // Redirect to the home page
+      navigate("/");
+    } catch (err) {
+      console.error("Error during Google login:", err);
+      setError("An error occurred during login with Google. Please try again.");
+    } finally {
+      // Stop loading
+      setLoading(false);
+    }
+  };
+
   return (
     <section className="min-h-screen flex items-center">
       <div className="w-full">
-        <div className="flex flex-col justify-center bg-white p-10 rounded-lg shadow md:w-2/3 mx-auto lg:w-1/2">
-          <form className="flex flex-col items-center" onSubmit={handleSubmit}>
+        <div className="flex flex-col justify-center items-center bg-white p-5 md:p-10 rounded-lg shadow md:w-2/3 mx-auto lg:w-1/2">
+          <form onSubmit={handleSubmit}>
             <h2 className="text-center text-blue-400 font-bold text-2xl uppercase my-5">
               Login Form
             </h2>
@@ -103,11 +124,30 @@ const Login = () => {
               </button>
             </div>
           </form>
-          <div className="flex justify-center text-sm mt-4">
-            <button className="flex items-center justify-center w-2/3 bg-black text-white font-bold p-2 rounded-lg">
-              <span>Or Continue with &nbsp;</span>
-              <FcGoogle size={24} />
+          <div className="relative w-full sm:w-1/2 md:w-2/3 lg:w-1/2">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="bg-white font-bold px-2">OR</span>
+            </div>
+          </div>
+          <div className="w-full sm:w-1/4 md:w-2/4 lg:w-1/2 mx-auto flex flex-col justify-center items-center mt-4">
+            <button
+              className="w-full bg-black text-white font-bold p-2 rounded-lg"
+              onClick={handleGoogleAuth}
+            >
+              <span> Continue with &nbsp;</span>
+              <FcGoogle className="inline-block" size={24} />
             </button>
+          </div>
+          <div className="m-auto mt-6 w-fit md:mt-4">
+            <span className="flex max-sm:flex-col justify-center items-center text-center m-auto">
+              Don&apos;t have an account? &nbsp;
+              <a className="font-semibold text-indigo-600" href="/register">
+                Create Account
+              </a>
+            </span>
           </div>
         </div>
       </div>
