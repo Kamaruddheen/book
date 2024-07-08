@@ -44,7 +44,6 @@ const Login = () => {
       }
     } catch (err) {
       console.error("Error during login:", err);
-      // setError("An error occurred during login. Please try again.");
       setError(err.response.data);
     } finally {
       // Stop loading
@@ -60,25 +59,8 @@ const Login = () => {
     setLoading(true);
 
     try {
-      // TODO: Google backend call goes here
-      // window.location.href = "http://localhost:2000/user";
-
-      await axios
-        .get("https://localhost:2000/user", {
-          withCredentials: true,
-        })
-        .then((response) => {
-          console.log(response);
-        });
-
-      // .then((response) => {
-      //   if (response.status === 200) {
-      //     console.log("Logged in successfully");
-      //     console.log(response.data);
-      //     // Redirect to the home page
-      //     // navigate("/");
-      //   }
-      // });
+      // Redirect to Google OAuth authentication route
+      window.location.href = "http://localhost:2000/user";
     } catch (err) {
       console.error("Error during Google login:", err);
       setError("An error occurred during login with Google. Please try again.");
