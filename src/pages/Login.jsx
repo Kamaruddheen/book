@@ -1,29 +1,52 @@
 import axios from "axios";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Clears previous error message
+    setError("");
+
+    // Basic input validation
+    if (!email || !password) {
+      setError("Please enter both email and password!!!");
+      return;
+    }
+
+    // Start loading
+    setLoading(true);
 
     const data = {
       email,
       password,
     };
 
-    axios
-      // Back API URL for Login
-      .post(`http://localhost:5555/login/`, data)
-      .then((res) => {
-        //   TODO: check response status and write operations
-        console.log("Logged In successfully");
-        console.log(res.json());
-      })
-      .catch((err) => {
-        console.log(err);
-      });
+    try {
+      const response = await axios.post("http://localhost:5555/login/", data);
+
+      if (response.status === 200) {
+        console.log("Logged in successfully");
+        console.log(response.data);
+        // Redirect to the home page
+        navigate("/");
+      } else {
+        setError("Invalid email or password.");
+      }
+    } catch (err) {
+      console.error("Error during login:", err);
+      setError("An error occurred during login. Please try again.");
+    } finally {
+      // Stop loading
+      setLoading(false);
+    }
   };
 
   return (
@@ -42,7 +65,7 @@ const Login = () => {
                   name="username"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="peer bg-transparent h-10 w-72 rounded-lg text-gray-200 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600"
+                  className="peer bg-transparent h-10 w-72 rounded-lg text-emerald-950 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600"
                   placeholder="Username"
                 />
                 <label
@@ -72,9 +95,10 @@ const Login = () => {
                 </label>
               </div>
             </div>
+            {error && <div className="text-red-500 text-center">{error}</div>}
             <div className="p-4">
               <button className="block w-full bg-blue-500 text-white font-bold p-2 rounded-lg">
-                Login
+                {loading ? "Logging in..." : "Login"}
               </button>
             </div>
           </form>
