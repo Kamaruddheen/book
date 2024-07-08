@@ -3,9 +3,10 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 
-const Login = () => {
+const Registration = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirm_password, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -17,8 +18,12 @@ const Login = () => {
     setError("");
 
     // Basic input validation
-    if (!username || !password) {
+    if (!username || !password || !confirm_password) {
       setError("Please enter both username and password!!!");
+      return;
+    }
+    if (password != confirm_password) {
+      setError("Password didn't match!! Re-enter Password");
       return;
     }
 
@@ -31,19 +36,31 @@ const Login = () => {
     };
 
     try {
-      const response = await axios.post("http://localhost:5555/login/", data);
+      // Check username exists or not
+      await axios.get(`http://localhost:5555/user/${username}`).then((res) => {
+        if (res.data.exists) {
+          setError("Username already exists");
+          return;
+        }
+      });
+
+      // Create a new user account
+      const response = await axios.post(
+        "http://localhost:5555/register/",
+        data
+      );
 
       if (response.status === 200) {
-        console.log("Logged in successfully");
+        console.log("Registration successfully");
         console.log(response.data);
         // Redirect to the home page
         navigate("/");
       } else {
-        setError("Invalid username or password.");
+        setError("Something went wrong while registering");
       }
     } catch (err) {
-      console.error("Error during login:", err);
-      setError("An error occurred during login. Please try again.");
+      console.error("Error during registeration:", err);
+      setError("An error occurred during register. Please try again.");
     } finally {
       // Stop loading
       setLoading(false);
@@ -63,8 +80,10 @@ const Login = () => {
       // Redirect to the home page
       navigate("/");
     } catch (err) {
-      console.error("Error during Google login:", err);
-      setError("An error occurred during login with Google. Please try again.");
+      console.error("Error during Google register:", err);
+      setError(
+        "An error occurred during register with Google. Please try again."
+      );
     } finally {
       // Stop loading
       setLoading(false);
@@ -77,7 +96,7 @@ const Login = () => {
         <div className="flex flex-col justify-center items-center bg-white p-5 md:p-10 rounded-lg shadow md:w-2/3 mx-auto lg:w-1/2">
           <form onSubmit={handleSubmit}>
             <h2 className="text-center text-blue-400 font-bold text-2xl uppercase my-5">
-              Login Form
+              Registration Form
             </h2>
             <div className="bg-white p-4 rounded-lg">
               <div className="relative bg-inherit">
@@ -117,10 +136,29 @@ const Login = () => {
                 </label>
               </div>
             </div>
+            <div className="bg-white p-4 rounded-lg">
+              <div className="relative bg-inherit">
+                <input
+                  type="password"
+                  id="confirm_password"
+                  name="confirm_password"
+                  value={confirm_password}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="peer bg-transparent h-10 w-72 rounded-lg text-emerald-950 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600 color-red"
+                  placeholder="Confirm Password"
+                />
+                <label
+                  htmlFor="confirm_password"
+                  className="absolute cursor-text left-0 -top-3 text-sm text-gray-500 bg-inherit mx-1 px-1 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-2 peer-focus:-top-3 peer-focus:text-sky-600 peer-focus:text-sm transition-all"
+                >
+                  Confirm password
+                </label>
+              </div>
+            </div>
             {error && <div className="text-red-500 text-center">{error}</div>}
             <div className="p-4">
               <button className="block w-full bg-blue-500 text-white font-bold p-2 rounded-lg">
-                {loading ? "Logging in..." : "Login"}
+                {loading ? "Crafting your account.." : "Register"}
               </button>
             </div>
           </form>
@@ -143,9 +181,9 @@ const Login = () => {
           </div>
           <div className="m-auto mt-6 w-fit md:mt-4">
             <span className="flex max-sm:flex-col justify-center items-center text-center m-auto">
-              Don&apos;t have an account? &nbsp;
+              Already have an account? &nbsp;
               <Link className="font-semibold text-indigo-600" to="/register">
-                Create Account
+                Login
               </Link>
             </span>
           </div>
@@ -155,4 +193,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Registration;
