@@ -1,15 +1,18 @@
+/* eslint-disable no-unused-vars */
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BookComponent from '../Components/BookComponent'; // Ensure the path is correct
 import Navbar from '../Components/Navbar';
 import { Plus } from 'lucide-react'; // Assuming the Lucide React icon library is used
+import { useSelector } from 'react-redux';
 
 function Home() {
   const [books, setBooks] = useState([]);
   const [error, setError] = useState(null);
   const baseBackendURL = "http://localhost:2000";
   const navigate = useNavigate();
+  const isLogin = useSelector((state) => state.auth.isLogin);
 
   const fetchBooks = async () => {
     try {
@@ -46,7 +49,7 @@ function Home() {
     <div className="relative min-h-screen">
       <Navbar />
       {error && <p className="text-red-500">Error fetching data: {error.message}</p>}
-  
+
       <div className="container mx-auto p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {books.map((book, index) => (
           <BookComponent
@@ -56,17 +59,20 @@ function Home() {
             date={book.date}
             onEdit={() => handleEdit(book.title)}
             onDelete={() => handleDelete(book.title)}
+            isLogin={isLogin}
           />
         ))}
       </div>
 
       {/* Plus icon button */}
-      <button
-        className="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none"
-        onClick={handleAddBook}
-      >
-        <Plus size={24} color='white' />
-      </button>
+      {isLogin && (
+        <button
+          className="fixed bottom-4 right-4 bg-blue-500 text-white p-4 rounded-full shadow-lg hover:bg-blue-600 focus:outline-none"
+          onClick={handleAddBook}
+        >
+          <Plus size={24} color='white' />
+        </button>
+      )}
     </div>
   );
 }

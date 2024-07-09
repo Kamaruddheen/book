@@ -1,83 +1,57 @@
 import axios from "axios";
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
+import { useState } from "react";
 
 const Registration = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirm_password, setConfirmPassword] = useState("");
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Clears previous error message
+  const onSubmit = async (data) => {
     setError("");
-
-    // Basic input validation
-    if (!username || !password || !confirm_password) {
-      setError("Please enter both username and password!!!");
-      return;
-    }
-    if (password != confirm_password) {
-      setError("Password didn't match!! Re-enter Password");
-      return;
-    }
-
-    // Start loading
     setLoading(true);
 
-    const data = {
-      username,
-      password,
-    };
-
     try {
-      // Create a new user account
-      const response = await axios.post(
-        "http://localhost:2000/user/register",
-        data
-      );
+      const response = await axios.post("http://localhost:2000/user/register", {
+        username: data.username,
+        password: data.password,
+      });
 
       if (response.status === 200) {
         console.log("Registration successfully");
         console.log(response.data);
-        // Redirect to the home page
-        navigate("/");
+        navigate("/"); // Redirect to the home page
       } else {
         setError("Something went wrong while registering");
       }
     } catch (err) {
-      console.error("Error during registeration:", err);
-      setError("An error occurred during register. Please try again.");
+      console.error("Error during registration:", err);
+      if (err.response && err.response.status === 409) {
+        setError("User already exists");
+      } else {
+        setError("An error occurred during registration. Please try again.");
+      }
     } finally {
-      // Stop loading
       setLoading(false);
     }
   };
 
-  const handleGoogleAuth = async () => {
-    // Clears previous error message
+  const registerGoogleAuth = () => {
     setError("");
-
-    // Start loading
     setLoading(true);
-
     try {
-      // TODO: Google backend call goes here
-
-      // Redirect to the home page
-      navigate("/");
+      window.location.href = "http://localhost:2000/google/auth";
     } catch (err) {
-      console.error("Error during Google register:", err);
-      setError(
-        "An error occurred during register with Google. Please try again."
-      );
-    } finally {
-      // Stop loading
+      console.error("Error during Google login:", err);
+      setError("An error occurred during login with Google. Please try again.");
       setLoading(false);
     }
   };
@@ -86,7 +60,7 @@ const Registration = () => {
     <section className="min-h-screen flex items-center">
       <div className="w-full">
         <div className="flex flex-col justify-center items-center bg-white p-5 md:p-10 rounded-lg shadow md:w-2/3 mx-auto lg:w-1/2">
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <h2 className="text-center text-blue-400 font-bold text-2xl uppercase my-5">
               Registration Form
             </h2>
@@ -94,11 +68,8 @@ const Registration = () => {
               <div className="relative bg-inherit">
                 <input
                   type="text"
-                  id="username"
-                  name="username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="peer bg-transparent h-10 w-72 rounded-lg text-emerald-950 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600"
+                  {...register("username", { required: "Username is required" })}
+                  className={`peer bg-transparent h-10 w-72 rounded-lg text-emerald-950 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600 ${errors.username ? "ring-red-500" : ""}`}
                   placeholder="Username"
                 />
                 <label
@@ -107,17 +78,15 @@ const Registration = () => {
                 >
                   Username
                 </label>
+                {errors.username && <p className="text-red-500 text-sm">{errors.username.message}</p>}
               </div>
             </div>
             <div className="bg-white p-4 rounded-lg">
               <div className="relative bg-inherit">
                 <input
                   type="password"
-                  id="password"
-                  name="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="peer bg-transparent h-10 w-72 rounded-lg text-emerald-950 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600 color-red"
+                  {...register("password", { required: "Password is required" })}
+                  className={`peer bg-transparent h-10 w-72 rounded-lg text-emerald-950 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600 ${errors.password ? "ring-red-500" : ""}`}
                   placeholder="Password"
                 />
                 <label
@@ -126,30 +95,33 @@ const Registration = () => {
                 >
                   Password
                 </label>
+                {errors.password && <p className="text-red-500 text-sm">{errors.password.message}</p>}
               </div>
             </div>
             <div className="bg-white p-4 rounded-lg">
               <div className="relative bg-inherit">
                 <input
                   type="password"
-                  id="confirm_password"
-                  name="confirm_password"
-                  value={confirm_password}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="peer bg-transparent h-10 w-72 rounded-lg text-emerald-950 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600 color-red"
+                  {...register("confirm_password", {
+                    required: "Please confirm your password",
+                    validate: (value) =>
+                      value === watch("password") || "Passwords do not match",
+                  })}
+                  className={`peer bg-transparent h-10 w-72 rounded-lg text-emerald-950 placeholder-transparent ring-2 px-2 ring-gray-500 focus:ring-sky-600 focus:outline-none focus:border-rose-600 ${errors.confirm_password ? "ring-red-500" : ""}`}
                   placeholder="Confirm Password"
                 />
                 <label
                   htmlFor="confirm_password"
                   className="absolute cursor-text left-0 -top-3 text-sm text-gray-500 bg-inherit mx-1 px-1 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 peer-placeholder-shown:top-2 peer-focus:-top-3 peer-focus:text-sky-600 peer-focus:text-sm transition-all"
                 >
-                  Confirm password
+                  Confirm Password
                 </label>
+                {errors.confirm_password && <p className="text-red-500 text-sm">{errors.confirm_password.message}</p>}
               </div>
             </div>
             {error && <div className="text-red-500 text-center">{error}</div>}
             <div className="p-4">
-              <button className="block w-full bg-blue-500 text-white font-bold p-2 rounded-lg">
+              <button type="submit" className="block w-full bg-blue-500 text-white font-bold p-2 rounded-lg">
                 {loading ? "Crafting your account.." : "Register"}
               </button>
             </div>
@@ -165,7 +137,7 @@ const Registration = () => {
           <div className="w-full sm:w-1/4 md:w-2/4 lg:w-1/2 mx-auto flex flex-col justify-center items-center mt-4">
             <button
               className="w-full bg-black text-white font-bold p-2 rounded-lg"
-              onClick={handleGoogleAuth}
+              onClick={registerGoogleAuth}
             >
               <span> Continue with &nbsp;</span>
               <FcGoogle className="inline-block" size={24} />

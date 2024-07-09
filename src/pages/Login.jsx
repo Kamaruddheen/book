@@ -51,7 +51,7 @@ const Login = () => {
     }
   };
 
-  const handleGoogleAuth = async () => {
+  const registerGoogleAuth = async () => {
     // Clears previous error message
     setError("");
 
@@ -60,7 +60,7 @@ const Login = () => {
 
     try {
       // Redirect to Google OAuth authentication route
-      window.location.href = "http://localhost:2000/user";
+      window.location.href = "http://localhost:2000/google/auth";
     } catch (err) {
       console.error("Error during Google login:", err);
       setError("An error occurred during login with Google. Please try again.");
@@ -134,7 +134,7 @@ const Login = () => {
           <div className="w-full sm:w-1/4 md:w-2/4 lg:w-1/2 mx-auto flex flex-col justify-center items-center mt-4">
             <button
               className="w-full bg-black text-white font-bold p-2 rounded-lg"
-              onClick={handleGoogleAuth}
+              onClick={registerGoogleAuth}
             >
               <span> Continue with &nbsp;</span>
               <FcGoogle className="inline-block" size={24} />
