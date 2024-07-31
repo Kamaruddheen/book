@@ -3,53 +3,65 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 
+import { useAuthContext } from "../hooks/useAuthContext";
+
 const Login = () => {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const navigate = useNavigate();
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+    const baseUrl = "http://localhost:3000";
+    const { user, dispatch } = useAuthContext();
 
-    // Clears previous error message
-    setError("");
-
-    // Basic input validation
-    if (!username || !password) {
-      setError("Please enter both username and password!!!");
-      return;
-    }
-
-    // Start loading
-    setLoading(true);
-
-    const data = {
-      username,
-      password,
-    };
-
-    try {
-      const response = await axios.post(
-        "https://nodewithdb.onrender.com/user/login/",
-        data
-      );
-
-      if (response.status === 200) {
-        console.log("Logged in successfully");
-        console.log(response.data);
-        // Redirect to the home page
+    // TODO: Implement useeffect
+    if (user) {
+        // If the user is authenticated, redirect to /home
         navigate("/");
-      }
-    } catch (err) {
-      console.error("Error during login:", err);
-      setError(err.response.data);
-    } finally {
-      // Stop loading
-      setLoading(false);
     }
-  };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        // Clears previous error message
+        setError("");
+        // Start loading
+        setLoading(true);
+
+        try {
+            const response = await axios.post(
+                `${baseUrl}/api/auth/login`,
+                {
+                    username,
+                    password,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
+
+            localStorage.setItem(
+                "user",
+                JSON.stringify({
+                    name: response.data.username,
+                    token: response.data.token,
+                })
+            );
+            alert("user logged in successfully");
+            dispatch({ type: "LOGIN", payload: response.data });
+        } catch (error) {
+            console.error(error);
+            setError(error.response.data.message);
+        } finally {
+            setUsername("");
+            setPassword("");
+            setError("");
+            setLoading(false);
+        }
+    };
 
   const registerGoogleAuth = async () => {
     // Clears previous error message
