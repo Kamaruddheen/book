@@ -35,7 +35,7 @@ function Navbar() {
 
   const handleLogout = async () => {
     dispatch(setLogin(false));
-    const response = await axios.get("http://localhost:2000/google/logout")
+    const response = await axios.get("https://nodewithdb.onrender.com/google/logout")
     if (response.status===200) {
       console.log("logout successfully");
       deleteCookie("isLoggedIn");
