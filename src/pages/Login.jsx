@@ -32,7 +32,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:2000/user/login/",
+        "https://nodewithdb.onrender.com/user/login/",
         data
       );
 
@@ -60,7 +60,7 @@ const Login = () => {
 
     try {
       // Redirect to Google OAuth authentication route
-      window.location.href = "http://localhost:2000/google/auth";
+      window.location.href = "https://nodewithdb.onrender.com/google/auth";
     } catch (err) {
       console.error("Error during Google login:", err);
       setError("An error occurred during login with Google. Please try again.");
