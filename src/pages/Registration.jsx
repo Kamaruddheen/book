@@ -1,8 +1,9 @@
+import React, { useState } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import { useState } from "react";
+import { useAuthContext } from "../hooks/useAuthContext";
 
 const Registration = () => {
     const {
@@ -15,36 +16,46 @@ const Registration = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
 
+    const baseUrl = "http://localhost:3000";
+    const { user, dispatch } = useAuthContext();
+
+    if (user) {
+        // If the user is authenticated, redirect to /home
+        navigate("/");
+    }
+
     const onSubmit = async (data) => {
         setError("");
         setLoading(true);
 
         try {
             const response = await axios.post(
-                "https://nodewithdb.onrender.com/user/register",
+                `${baseUrl}/api/auth/register`,
                 {
                     username: data.username,
                     password: data.password,
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
                 }
             );
 
-            if (response.status === 200) {
-                console.log("Registration successfully");
-                console.log(response.data);
-                navigate("/"); // Redirect to the home page
-            } else {
-                setError("Something went wrong while registering");
-            }
+            localStorage.setItem(
+                "user",
+                JSON.stringify({
+                    name: response.data.username,
+                    token: response.data.token,
+                })
+            );
+            alert("User registered successfully");
+            dispatch({ type: "LOGIN", payload: response.data });
         } catch (err) {
             console.error("Error during registration:", err);
-            if (err.response && err.response.status === 409) {
-                setError("User already exists");
-            } else {
-                setError(
-                    "An error occurred during registration. Please try again."
-                );
-            }
+            setError(error.response.data.message);
         } finally {
+            setError("");
             setLoading(false);
         }
     };
