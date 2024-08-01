@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
 import { useAuthContext } from "../hooks/useAuthContext";
+import { BASE_BACKEND_URL } from "../config.js";
 
 const Registration = () => {
     const {
@@ -15,8 +16,6 @@ const Registration = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-
-    const baseUrl = "http://localhost:3000";
     const { user, dispatch } = useAuthContext();
 
     if (user) {
@@ -30,7 +29,7 @@ const Registration = () => {
 
         try {
             const response = await axios.post(
-                `${baseUrl}/api/auth/register`,
+                `${BASE_BACKEND_URL}/api/auth/register`,
                 {
                     username: data.username,
                     password: data.password,
@@ -64,8 +63,7 @@ const Registration = () => {
         setError("");
         setLoading(true);
         try {
-            window.location.href =
-                "https://nodewithdb.onrender.com/google/auth";
+            window.location.href = `${BASE_BACKEND_URL}/google/auth`;
         } catch (err) {
             console.error("Error during Google login:", err);
             setError(
