@@ -1,10 +1,8 @@
-import React, { useState } from "react";
 import axios from "axios";
 import { useForm } from "react-hook-form";
 import { useNavigate, Link } from "react-router-dom";
 import { FcGoogle } from "react-icons/fc";
-import { useAuthContext } from "../hooks/useAuthContext";
-import { BASE_BACKEND_URL } from "../config.js";
+import { useState } from "react";
 
 const Registration = () => {
     const {
@@ -16,12 +14,6 @@ const Registration = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const { user, dispatch } = useAuthContext();
-
-    if (user) {
-        // If the user is authenticated, redirect to /home
-        navigate("/");
-    }
 
     const onSubmit = async (data) => {
         setError("");
@@ -29,32 +21,30 @@ const Registration = () => {
 
         try {
             const response = await axios.post(
-                `${BASE_BACKEND_URL}/api/auth/register`,
+                "https://nodewithdb.onrender.com/user/register",
                 {
                     username: data.username,
                     password: data.password,
-                },
-                {
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
                 }
             );
 
-            localStorage.setItem(
-                "user",
-                JSON.stringify({
-                    name: response.data.username,
-                    token: response.data.token,
-                })
-            );
-            alert("User registered successfully");
-            dispatch({ type: "LOGIN", payload: response.data });
+            if (response.status === 200) {
+                console.log("Registration successfully");
+                console.log(response.data);
+                navigate("/"); // Redirect to the home page
+            } else {
+                setError("Something went wrong while registering");
+            }
         } catch (err) {
             console.error("Error during registration:", err);
-            setError(error.response.data.message);
+            if (err.response && err.response.status === 409) {
+                setError("User already exists");
+            } else {
+                setError(
+                    "An error occurred during registration. Please try again."
+                );
+            }
         } finally {
-            setError("");
             setLoading(false);
         }
     };
@@ -63,7 +53,8 @@ const Registration = () => {
         setError("");
         setLoading(true);
         try {
-            window.location.href = `${BASE_BACKEND_URL}/google/auth`;
+            window.location.href =
+                "https://nodewithdb.onrender.com/google/auth";
         } catch (err) {
             console.error("Error during Google login:", err);
             setError(
