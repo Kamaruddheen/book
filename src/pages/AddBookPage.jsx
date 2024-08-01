@@ -2,7 +2,8 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { BASE_BACKEND_URL } from "../config.js";
+
+const baseBackendURL = "https://nodewithdb.onrender.com";
 
 function AddBookPage() {
     const { register, handleSubmit, reset } = useForm();
@@ -10,10 +11,7 @@ function AddBookPage() {
 
     const onSubmit = async (data) => {
         try {
-            const response = await axios.post(
-                `${BASE_BACKEND_URL}/books/`,
-                data
-            );
+            const response = await axios.post(`${baseBackendURL}/books/`, data);
             if (response.status === 200) {
                 navigate("/"); // Navigate back to the book list after successful edit
             }
